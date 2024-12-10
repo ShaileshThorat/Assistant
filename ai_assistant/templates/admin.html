@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Chat History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .session {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #1f1f1f;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .session h2 {
+            margin-bottom: 10px;
+            color: #4caf50;
+        }
+
+        .chat {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #333;
+        }
+
+        .user {
+            color: #4caf50;
+        }
+
+        .model {
+            color: #3498db;
+        }
+
+        button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat History</h1>
+    <div id="sessions-container"></div>
+    <button id="clear-all">Clear All Histories</button>
+
+    <script>
+        // Fetch all chat sessions
+        async function fetchSessions() {
+            try {
+                const response = await fetch('/get_all_sessions');
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    displaySessions(data.sessions);
+                } else {
+                    alert("Failed to load sessions.");
+                }
+            } catch (error) {
+                console.error("Error fetching sessions:", error);
+            }
+        }
+
+        // Display all sessions
+        function displaySessions(sessions) {
+            const container = document.getElementById("sessions-container");
+            container.innerHTML = "";
+
+            for (const [sessionId, chats] of Object.entries(sessions)) {
+                const sessionDiv = document.createElement("div");
+                sessionDiv.classList.add("session");
+
+                const sessionTitle = document.createElement("h2");
+                sessionTitle.textContent = `Session ID: ${sessionId}`;
+                sessionDiv.appendChild(sessionTitle);
+
+                chats.forEach(chat => {
+                    const chatDiv = document.createElement("div");
+                    chatDiv.classList.add("chat");
+
+                    const userMessage = document.createElement("p");
+                    userMessage.classList.add("user");
+                    userMessage.textContent = `User: ${chat.user}`;
+                    chatDiv.appendChild(userMessage);
+
+                    const modelMessage = document.createElement("p");
+                    modelMessage.classList.add("model");
+                    modelMessage.textContent = `Model: ${chat.model}`;
+                    chatDiv.appendChild(modelMessage);
+
+                    sessionDiv.appendChild(chatDiv);
+                });
+
+                container.appendChild(sessionDiv);
+            }
+        }
+
+        // Clear all chat histories
+        document.getElementById("clear-all").addEventListener("click", async () => {
+            try {
+                const response = await fetch('/clear_history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    alert(data.message);
+                    fetchSessions();
+                } else {
+                    alert("Failed to clear chat histories.");
+                }
+            } catch (error) {
+                console.error("Error clearing histories:", error);
+            }
+        });
+
+        // Load sessions on page load
+        fetchSessions();
+    </script>
+</body>
+</html>
