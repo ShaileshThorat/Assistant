@@ -1,0 +1,6 @@
+flask               # For web-based UI (or PyQt5 for desktop UI)
+torch               # For PyTorch-based AI models (if applicable)
+tensorflow          # For TensorFlow-based models (if applicable)
+numpy               # For data manipulation
+scikit-learn        # Additional AI/ML support
+flask-cors
